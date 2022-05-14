@@ -54,6 +54,7 @@ class DefaultFirebaseOptions {
     appId: '1:261354147399:android:add059a0cecefedc166b62',
     messagingSenderId: '261354147399',
     projectId: 'seminar-five',
+    databaseURL: 'https://seminar-five-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'seminar-five.appspot.com',
   );
 
@@ -62,6 +63,7 @@ class DefaultFirebaseOptions {
     appId: '1:261354147399:ios:3f916a58442275a7166b62',
     messagingSenderId: '261354147399',
     projectId: 'seminar-five',
+    databaseURL: 'https://seminar-five-default-rtdb.asia-southeast1.firebasedatabase.app',
     storageBucket: 'seminar-five.appspot.com',
     iosClientId: '261354147399-s7k9koqee41vqqv1s5fl7sk8uv2j81br.apps.googleusercontent.com',
     iosBundleId: 'com.example.five',
