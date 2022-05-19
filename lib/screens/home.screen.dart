@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:five/screens/forum/post.list.screen.dart';
+import 'package:five/screens/chatbot/chatbot.screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -30,7 +31,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 String password = "12345a,*";
 
                 try {
-                  final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  final credential = await FirebaseAuth.instance
+                      .createUserWithEmailAndPassword(
                     email: emailAddress,
                     password: password,
                   );
@@ -58,7 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ElevatedButton(
               onPressed: () async {
                 try {
-                  final registered = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+                  final registered = await FirebaseAuth.instance
+                      .createUserWithEmailAndPassword(
                     email: email.text,
                     password: password.text,
                   );
@@ -66,7 +69,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 } on FirebaseAuthException catch (e) {
                   if (e.code == 'email-already-in-use') {
                     try {
-                      final signedIn = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                      final signedIn = await FirebaseAuth.instance
+                          .signInWithEmailAndPassword(
                         email: email.text,
                         password: password.text,
                       );
@@ -87,10 +91,21 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ForumListScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const ForumListScreen()),
                 );
               },
               child: const Text('Open Forum'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const ChatBotScreen()),
+                );
+              },
+              child: const Text('Open ChatBot'),
             ),
           ],
         ),
