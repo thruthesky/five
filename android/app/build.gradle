@@ -50,7 +50,9 @@ android {
         applicationId "com.example.five"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
-        minSdkVersion flutter.minSdkVersion
+//        minSdkVersion flutter.minSdkVersion
+        minSdkVersion 20    // google_maps_flutter 는 20이상
+        multiDexEnabled true    // 빌드오류 수정 2022.5.19
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName

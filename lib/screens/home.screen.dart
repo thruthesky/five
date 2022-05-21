@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:five/screens/forum/post.list.screen.dart';
 import 'package:five/screens/chatbot/chatbot.screen.dart';
+import 'package:five/screens/map/map.screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -106,6 +107,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               },
               child: const Text('Open ChatBot'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const MapScreen()),
+                );
+              },
+              child: const Text('Open map'),
             ),
           ],
         ),
