@@ -27,10 +27,27 @@ class _ChatbotDataScreenState extends State<ChatbotDataScreen> {
             controller: title,
             decoration: const InputDecoration(hintText: 'Input title'),
           ),
+          TextFormField(
+            controller: content,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              filled: true,
+              hintText: 'Enter a description...',
+              labelText: 'Description',
+            ),
+            /*
+                          onChanged: (value) {
+                            description = value;
+                          },
+                          */
+            maxLines: 5,
+          ),
+          /*        
           TextField(
             controller: content,
             decoration: const InputDecoration(hintText: 'Input content'),
           ),
+          */
           TextField(
             controller: search1,
             decoration: const InputDecoration(hintText: 'Input search'),
