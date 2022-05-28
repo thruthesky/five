@@ -23,6 +23,9 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
   late Future<String> chatbotGetData;
   List<ChatMessage> messages = [];
   bool dataFind = false;
+  int msgLength = 0;
+  final controller = ScrollController();
+  double endPosition = 0;
 
   //String chatbotStr = '';
 
@@ -55,36 +58,20 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     return '';
   }
   */
-
+  // Like서치를 위한 대안  https://firebase.google.com/docs/firestore/solutions/search
   Future<String> _chatbotGetData() async {
     return await db
         .collection('chatbot')
         .orderBy('search1')
         .startAt([searchStr])
         .endAt(['$searchStr\uf8ff'])
-        /*
-        .where(
-          'title',
-          isGreaterThanOrEqualTo: searchStr,
-          isLessThan: searchStr.substring(0, searchStr.length - 1) +
-              String.fromCharCode(
-                  searchStr.codeUnitAt(searchStr.length - 1) + 1),
-        )
-        */
-        //.orderBy('title')
-        //.startAfter([searchStr])
-        //.endAt(['$searchStr\uf8ff'])
         .get()
         .then((event) {
-          //           .where("title", isEqualTo: searchStr).get()
-          debugPrint(event.docs.length.toString());
-          debugPrint('**********$event.docs.toString()');
-          // chatbotStr = '';
-          // ignore: prefer_is_empty
           if (event.docs.length > 1) {
             dataFind = true;
             messages.add(ChatMessage(
                 messageContent: '다음 항목에서 선택하세요.', messageType: "receiver"));
+            msgLength++;
           }
           for (var doc in event.docs) {
             debugPrint("---> $searchStr");
@@ -94,13 +81,12 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
               messages.add(ChatMessage(
                   messageContent: doc.data()['content'].toString(),
                   messageType: "receiver"));
-              // chatbotStr = doc.data()['content'].toString();
-              // return 0;
-              // doc.data()['content'].toString();
+              msgLength++;
             } else if (event.docs.length > 1) {
               messages.add(ChatMessage(
                   messageContent: doc.data()['title'].toString(),
                   messageType: "receiver-menu"));
+              msgLength++;
             }
           }
           return '';
@@ -119,6 +105,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           messages.add(ChatMessage(
               messageContent: doc.data()['content'].toString(),
               messageType: "receiver"));
+          msgLength++;
           // chatbotStr = doc.data()['content'].toString();
           // return 0;
           // doc.data()['content'].toString();
@@ -126,6 +113,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
           messages.add(ChatMessage(
               messageContent: doc.data()['title'].toString(),
               messageType: "receiver-menu"));
+          msgLength++;
         }
       }
       return '';
@@ -137,6 +125,13 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
     super.initState();
     // _chatbotGetData();
     chatbotGetData = _chatbotGetData();
+    controller.addListener(listenScrolling);
+  }
+
+  void listenScrolling() {
+    if (controller.position.atEdge) {
+      final isTop = controller.position.pixels == 0;
+    }
   }
 
   @override
@@ -186,65 +181,76 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                       ),
                     );
                   } else {
-                    return ListView.builder(
-                      itemCount: messages.length,
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.only(top: 10, bottom: 10),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        return Container(
-                          padding: const EdgeInsets.only(
-                              left: 14, right: 14, top: 10, bottom: 10),
-                          child: Align(
-                            alignment: (messages[index].messageType == "sender"
-                                ? Alignment.topRight
-                                : Alignment.topLeft),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20),
-                                color:
-                                    (messages[index].messageType == "receiver"
-                                        ? Colors.grey.shade200
-                                        : messages[index].messageType ==
-                                                "receiver-menu"
-                                            ? Color.fromARGB(255, 238, 223, 142)
-                                            : Colors.blue[200]),
-                              ),
-                              padding: const EdgeInsets.all(16),
-                              child: (messages[index].messageType ==
-                                      "receiver-menu")
-                                  ? InkWell(
-                                      onTap: () async {
-                                        sendMsg.text =
-                                            messages[index].messageContent;
-                                        dataFind = false;
-                                        messages.add(ChatMessage(
-                                            messageContent: sendMsg.text,
-                                            messageType: "sender"));
-                                        searchStr = sendMsg.text;
-                                        await _chatbotGetData2();
-                                        if (dataFind == false) {
+                    return Container(
+                      height: MediaQuery.of(context).size.height - 140,
+                      child: ListView.builder(
+                        controller: controller,
+                        itemCount: msgLength,
+                        shrinkWrap: true,
+                        padding: const EdgeInsets.only(top: 10, bottom: 10),
+                        // physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Container(
+                            padding: const EdgeInsets.only(
+                                left: 14, right: 14, top: 10, bottom: 10),
+                            child: Align(
+                              alignment:
+                                  (messages[index].messageType == "sender"
+                                      ? Alignment.topRight
+                                      : Alignment.topLeft),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: (messages[index].messageType ==
+                                          "receiver"
+                                      ? Colors.grey.shade200
+                                      : messages[index].messageType ==
+                                              "receiver-menu"
+                                          ? Color.fromARGB(255, 238, 223, 142)
+                                          : Colors.blue[200]),
+                                ),
+                                padding: const EdgeInsets.all(16),
+                                child: (messages[index].messageType ==
+                                        "receiver-menu")
+                                    ? InkWell(
+                                        onTap: () async {
+                                          sendMsg.text =
+                                              messages[index].messageContent;
+                                          dataFind = false;
                                           messages.add(ChatMessage(
-                                              messageContent:
-                                                  '질문에 해당하는 답변이 준비되지 않았습니다.\n 다른 검색어를 입력해 주세요.',
-                                              messageType: "receiver"));
-                                        }
-                                        setState(() {});
-                                        sendMsg.text = '';
-                                      },
-                                      child: Text(
+                                              messageContent: sendMsg.text,
+                                              messageType: "sender"));
+                                          msgLength++;
+                                          searchStr = sendMsg.text;
+                                          await _chatbotGetData2();
+                                          if (dataFind == false) {
+                                            messages.add(ChatMessage(
+                                                messageContent:
+                                                    '질문에 해당하는 답변이 준비되지 않았습니다.\n 다른 검색어를 입력해 주세요.',
+                                                messageType: "receiver"));
+                                            msgLength++;
+                                          }
+                                          setState(() {});
+                                          sendMsg.text = '';
+                                          endPosition = controller
+                                                  .position.maxScrollExtent +
+                                              500;
+                                          controller.jumpTo(endPosition);
+                                        },
+                                        child: Text(
+                                          messages[index].messageContent,
+                                          style: const TextStyle(fontSize: 15),
+                                        ),
+                                      )
+                                    : Text(
                                         messages[index].messageContent,
                                         style: const TextStyle(fontSize: 15),
                                       ),
-                                    )
-                                  : Text(
-                                      messages[index].messageContent,
-                                      style: const TextStyle(fontSize: 15),
-                                    ),
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     );
                   }
                 }),
@@ -296,6 +302,7 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                         messages.add(ChatMessage(
                             messageContent: sendMsg.text,
                             messageType: "sender"));
+                        msgLength++;
                         searchStr = sendMsg.text;
                         await _chatbotGetData();
                         if (dataFind == false) {
@@ -303,10 +310,14 @@ class _ChatBotScreenState extends State<ChatBotScreen> {
                               messageContent:
                                   '질문에 해당하는 답변이 준비되지 않았습니다.\n 다른 검색어를 입력해 주세요.',
                               messageType: "receiver"));
+                          msgLength++;
                         }
                         setState(() {});
                         sendMsg.text = '';
                       }
+                      FocusScope.of(context).unfocus();
+                      endPosition = controller.position.maxScrollExtent + 300;
+                      controller.jumpTo(endPosition);
                     },
                     // ignore: sort_child_properties_last
                     child: const Icon(
